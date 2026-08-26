@@ -2,7 +2,8 @@ import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    ANTHROPIC_API_KEY: str = "sk-ant-xxx"
+    GEMINI_API_KEY: str = "xxx"
+    GEMINI_MODEL: str = "gemini-3.7-flash"
     RAZORPAY_KEY_ID: str = "rzp_test_xxx"
     RAZORPAY_KEY_SECRET: str = "xxx"
     TWILIO_ACCOUNT_SID: str = "xxx"
