@@ -16,3 +16,4 @@ pytest
 hypothesis
 black
 ruff
+google-generativeai

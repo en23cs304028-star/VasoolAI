@@ -2,8 +2,9 @@ import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    GEMINI_API_KEY: str = "xxx"
-    GEMINI_MODEL: str = "gemini-3.7-flash"
+    NVIDIA_API_KEY: str = "nvapi-xxx"
+    NVIDIA_DRAFT_MODEL: str = "nvidia/nemotron-3.5-lightning"
+    NVIDIA_EXTRACT_MODEL: str = "mistralai/mistral-nemotron"
     RAZORPAY_KEY_ID: str = "rzp_test_xxx"
     RAZORPAY_KEY_SECRET: str = "xxx"
     TWILIO_ACCOUNT_SID: str = "xxx"
