@@ -9,11 +9,10 @@ scikit-learn
 shap
 pandas
 numpy
-google-generativeai
+openai
 razorpay
 twilio
 pytest
 hypothesis
 black
 ruff
-google-generativeai
