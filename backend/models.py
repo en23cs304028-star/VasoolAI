@@ -4,6 +4,8 @@ import datetime
 import enum
 from backend.db import Base
 
+BUYER_SECTORS = ["Manufacturing", "IT Services", "Logistics", "Retail", "Healthcare"]
+
 class InvoiceStatus(enum.Enum):
     open = "open"
     paid = "paid"
@@ -29,6 +31,7 @@ class Buyer(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     sector = Column(String)
+    phone_number = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     invoices = relationship("Invoice", back_populates="buyer")
@@ -80,6 +83,7 @@ class Action(Base):
     approved_by = Column(String, nullable=True)
     sent = Column(Boolean, default=False)
     sent_at = Column(DateTime, nullable=True)
+    promised_payment_date = Column(Date, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 
@@ -103,4 +107,6 @@ class BacktestRun(Base):
     agent_metric_recovery_days = Column(Float)
     baseline_metric_recovery_rate = Column(Float)
     agent_metric_recovery_rate = Column(Float)
+    ablation_metric_recovery_days = Column(Float)
+    ablation_metric_recovery_rate = Column(Float)
     notes = Column(Text)

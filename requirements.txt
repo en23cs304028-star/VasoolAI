@@ -16,3 +16,5 @@ pytest
 hypothesis
 black
 ruff
+streamlit
+requests

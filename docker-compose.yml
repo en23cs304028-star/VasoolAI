@@ -11,3 +11,16 @@ services:
       - .:/app
     environment:
       - DATABASE_URL=sqlite:///./sandbox.db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    environment:
+      - API_URL=http://backend:8000
+    depends_on:
+      - backend

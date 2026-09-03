@@ -4,8 +4,9 @@ from backend.config import settings
 from backend.llm.prompts import SYSTEM_PROMPT
 
 client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
+    base_url="https://openrouter.ai/api/v1" if settings.NVIDIA_API_KEY.startswith("sk-or") else "https://integrate.api.nvidia.com/v1",
     api_key=settings.NVIDIA_API_KEY,
+    timeout=30.0,
 )
 
 def draft_message(tier: str, facts: dict) -> str:
@@ -32,7 +33,12 @@ def draft_message(tier: str, facts: dict) -> str:
         temperature=0.4,
         max_tokens=4096,
     )
-    return completion.choices[0].message.content or ""
+    raw_content = completion.choices[0].message.content or ""
+    if "</think>" in raw_content:
+        raw_content = raw_content.split("</think>")[-1]
+    if "[Output]" in raw_content:
+        raw_content = raw_content.split("[Output]")[-1]
+    return raw_content.strip()
 
 def extract_structured(prompt: str) -> str:
     """Used by the ledger/invoice parsing path. Different model from

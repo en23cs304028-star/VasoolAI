@@ -41,11 +41,14 @@ def test_no_hallucinated_numbers():
                 message = draft_message(tier, facts)
                 _verify_no_hallucinations(tier, facts, message)
     else:
-        # Run without patch to hit live API
-        for facts in facts_list:
-            tier = "statutory_notice" if facts['days_overdue'] >= 31 else "nudge"
-            message = draft_message(tier, facts)
-            _verify_no_hallucinations(tier, facts, message)
+        import openai
+        try:
+            for facts in facts_list:
+                tier = "statutory_notice" if facts['days_overdue'] >= 31 else "nudge"
+                message = draft_message(tier, facts)
+                _verify_no_hallucinations(tier, facts, message)
+        except (openai.APITimeoutError, openai.APIConnectionError) as e:
+            pytest.skip(f"Live NVIDIA API endpoint timed out or unavailable: {e}")
 
 def _verify_no_hallucinations(tier, facts, message):
     import re
