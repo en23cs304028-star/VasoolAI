@@ -48,7 +48,6 @@ with tab1:
 # ----------------- Tab 2: Invoice Drill-down -----------------
 with tab2:
     st.header("Invoice Drill-down")
-    st.caption("ℹ️ **Track Alignment:** Core pipeline maps to *Payment Degradation (Risk Model) → Root Cause (SHAP Analysis) → Recovery Action (Escalation & Channel)*.")
 
     col_input, col_btn = st.columns([3, 1])
     with col_input:
@@ -131,55 +130,6 @@ with tab2:
                 st.metric("Statutory MSMED Interest", f"₹{interest_val:,.2f}")
                 if inv.get('actual_payment_date'):
                     st.write(f"**Payment Date:** {inv.get('actual_payment_date')}")
-
-            # --- Pipeline Diagnostic Section ---
-            st.markdown("### 🔍 Payment Degradation → Root Cause → Recovery Action")
-            diag_col1, diag_col2, diag_col3 = st.columns(3)
-            
-            with diag_col1:
-                st.markdown("**1. Payment Degradation**")
-                risk_tier = inv.get("risk_tier") or "Unscored"
-                risk_prob = inv.get("risk_probability")
-                prob_str = f" ({risk_prob*100:.1f}%)" if risk_prob is not None else ""
-                st.write(f"Risk Tier: **{risk_tier.upper()}{prob_str}**")
-                if st.button("Score Invoice Risk", key=f"score_btn_{invoice_id}"):
-                    s_res = requests.post(f"{API_URL}/invoices/{invoice_id}/score")
-                    if s_res.status_code == 200:
-                        st.success("Scored successfully!")
-                        st.rerun()
-                    else:
-                        st.error(f"Scoring failed: {s_res.text}")
-
-            with diag_col2:
-                st.markdown("**2. Root Cause (SHAP Top Features)**")
-                shap_str = inv.get("shap_top_features")
-                if shap_str:
-                    try:
-                        shap_data = json.loads(shap_str)
-                        for feat, val in shap_data.items():
-                            st.write(f"- `{feat}`: {val:+.3f}")
-                    except Exception:
-                        st.write(shap_str)
-                else:
-                    st.caption("Score invoice to inspect root-cause features.")
-
-            with diag_col3:
-                st.markdown("**3. Recovery Action**")
-                if actions:
-                    act = actions[0]
-                    st.write(f"Tier: **{act.get('escalation_tier')}**")
-                    st.write(f"Channel: `{act.get('channel')}`")
-                    st.write(f"Approved: {'✅ Yes' if act.get('approved') else '⏳ Pending'}")
-                    st.write(f"Sent: {'✅ Sent' if act.get('sent') else '❌ Not Sent'}")
-                else:
-                    st.caption("No action planned yet.")
-                    if st.button("Plan Recovery Action", key=f"plan_btn_{invoice_id}"):
-                        p_res = requests.post(f"{API_URL}/invoices/{invoice_id}/plan-action")
-                        if p_res.status_code == 200:
-                            st.success("Action planned!")
-                            st.rerun()
-                        else:
-                            st.error(f"Planning failed: {p_res.text}")
 
             # --- Audit Trail ---
             st.markdown("### 📜 Audit Trail")
