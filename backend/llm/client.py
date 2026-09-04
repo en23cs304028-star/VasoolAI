@@ -6,7 +6,7 @@ from backend.llm.prompts import SYSTEM_PROMPT
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1" if settings.NVIDIA_API_KEY.startswith("sk-or") else "https://integrate.api.nvidia.com/v1",
     api_key=settings.NVIDIA_API_KEY,
-    timeout=30.0,
+    timeout=60.0,
 )
 
 def draft_message(tier: str, facts: dict) -> str:
@@ -31,7 +31,7 @@ def draft_message(tier: str, facts: dict) -> str:
         model=settings.NVIDIA_DRAFT_MODEL,
         messages=[{"role": "user", "content": prompt + instruction}],
         temperature=0.4,
-        max_tokens=4096,
+        max_tokens=1024,
     )
     raw_content = completion.choices[0].message.content or ""
     if "</think>" in raw_content:

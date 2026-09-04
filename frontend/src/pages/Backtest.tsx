@@ -219,7 +219,22 @@ export const BacktestPage: React.FC = () => {
             )}
           </div>
         </div>
-      ) : null}
+      ) : (
+        <div className="py-20 text-center text-sm text-ink-soft bg-surface border border-border rounded-lg shadow-card">
+          <p className="font-semibold text-ink text-base">No backtest simulation recorded yet</p>
+          <p className="text-xs text-ink-soft mt-1 max-w-sm mx-auto">
+            Run an agent-vs-baseline simulation over the full invoice cohort to evaluate recovery metrics.
+          </p>
+          <button
+            onClick={handleRunBacktest}
+            disabled={running}
+            className="mt-4 px-4 py-2 text-xs font-semibold bg-primary text-white hover:bg-primary-hover rounded-md shadow-sm transition-all inline-flex items-center gap-2 disabled:opacity-50"
+          >
+            <Play className={`w-3.5 h-3.5 ${running ? 'animate-spin' : 'fill-white'}`} />
+            {running ? 'Simulating Full Batch...' : 'Run New Backtest'}
+          </button>
+        </div>
+      )}
     </div>
   );
 };
