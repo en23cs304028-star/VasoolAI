@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     NVIDIA_API_KEY: str = "nvapi-xxx"
     NVIDIA_DRAFT_MODEL: str = "nvidia/nemotron-3.5-lightning-30b-a3b"
-    NVIDIA_EXTRACT_MODEL: str = "mistralai/mistral-nemotron"
+    NVIDIA_EXTRACT_MODEL: str = "nvidia/nemotron-3.5-lightning-30b-a3b"
     RAZORPAY_KEY_ID: str = "rzp_test_xxx"
     RAZORPAY_KEY_SECRET: str = "xxx"
     TWILIO_ACCOUNT_SID: str = "xxx"

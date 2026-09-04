@@ -48,7 +48,7 @@ def plan_action_for_invoice(invoice_id: int, db: Session, today: datetime.date =
         
     payment_link_url = generate_payment_link(
         amount=amount_to_pay,
-        reference_id=f"{invoice.invoice_number}-{int(today.strftime('%Y%m%d'))}",
+        reference_id=f"{invoice.invoice_number}-{int(datetime.datetime.utcnow().timestamp())}",
         description=f"Payment for {invoice.invoice_number}"
     )
         
@@ -63,8 +63,8 @@ def plan_action_for_invoice(invoice_id: int, db: Session, today: datetime.date =
     
     drafted_message = draft_message(tier.name, facts)
     
-    # Map tier to channel
-    selected_channel = Channel.email if tier.name == "statutory_notice" else Channel.whatsapp
+    # Default channel is Email (Mailtrap sandbox) as Twilio WhatsApp Sandbox requires manual joining
+    selected_channel = Channel.email
     
     action = Action(
         invoice_id=invoice.id,
