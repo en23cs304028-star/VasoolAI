@@ -39,19 +39,37 @@ def list_invoices(
             
         latest_risk = db.query(RiskScore).filter(RiskScore.invoice_id == inv.id).order_by(RiskScore.id.desc()).first()
         risk_tier = latest_risk.risk_tier.name if latest_risk else "unscored"
+        latest_action = db.query(Action).filter(Action.invoice_id == inv.id).order_by(Action.id.desc()).first()
+
+        action_status = None
+        if latest_action:
+            if latest_action.sent:
+                action_status = "Sent"
+            elif latest_action.requires_approval and not latest_action.approved:
+                action_status = "Pending approval"
+            else:
+                action_status = "Queued"
+
+        days_overdue = max(0, (payment_date_to_use - inv.due_date).days) if is_overdue else 0
 
         results.append({
             "id": inv.id,
             "buyer_id": inv.buyer_id,
+            "buyer_name": inv.buyer.name if inv.buyer else f"Buyer #{inv.buyer_id}",
             "invoice_number": inv.invoice_number,
             "invoice_date": inv.invoice_date,
             "due_date": inv.due_date,
-            "principal_amount": inv.principal_amount,
+            "principal_amount": float(inv.principal_amount) if inv.principal_amount else 0.0,
             "status": inv.status.name if hasattr(inv.status, 'name') else inv.status,
             "actual_payment_date": inv.actual_payment_date,
             "interest_owed": interest,
             "is_overdue": is_overdue,
-            "risk_tier": risk_tier
+            "days_overdue": days_overdue,
+            "risk_tier": risk_tier,
+            "risk_probability": latest_risk.risk_probability if latest_risk else None,
+            "action_status": action_status,
+            "action_tier": latest_action.escalation_tier.name if (latest_action and hasattr(latest_action.escalation_tier, 'name')) else (str(latest_action.escalation_tier) if latest_action else None),
+            "latest_action_id": latest_action.id if latest_action else None
         })
         
     return results
@@ -78,10 +96,13 @@ def get_invoice(id: int, db: Session = Depends(get_db)):
     else:
         payment_date_to_use = inv.actual_payment_date or today
     interest = calculate_interest(inv.principal_amount, inv.due_date, payment_date_to_use)
+    is_overdue = (payment_date_to_use > inv.due_date)
+    days_overdue = max(0, (payment_date_to_use - inv.due_date).days) if is_overdue else 0
 
     return {
         "id": inv.id,
         "buyer_id": inv.buyer_id,
+        "buyer_name": inv.buyer.name if inv.buyer else f"Buyer #{inv.buyer_id}",
         "supplier_name": inv.supplier_name,
         "invoice_number": inv.invoice_number,
         "invoice_date": inv.invoice_date.isoformat() if inv.invoice_date else None,
@@ -93,8 +114,11 @@ def get_invoice(id: int, db: Session = Depends(get_db)):
         "actual_payment_amount": float(inv.actual_payment_amount) if inv.actual_payment_amount else None,
         "created_at": inv.created_at.isoformat() if inv.created_at else None,
         "interest_owed": interest,
+        "is_overdue": is_overdue,
+        "days_overdue": days_overdue,
         "risk_tier": latest_risk.risk_tier.name if latest_risk else None,
         "risk_probability": latest_risk.risk_probability if latest_risk else None,
+        "model_version": latest_risk.model_version if latest_risk else None,
         "shap_top_features": latest_risk.shap_top_features if latest_risk else None,
         "latest_action_id": latest_action.id if latest_action else None,
         "promised_payment_date": promised_payment_date.isoformat() if promised_payment_date else None,

@@ -1,16 +1,20 @@
-FROM python:3.11-slim
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Install requirements
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY frontend/package*.json ./
+RUN npm install
 
-# Copy application files
-COPY . .
+COPY frontend/ ./
+RUN npm run build
 
-# Expose Streamlit port
-EXPOSE 8501
+FROM node:20-alpine
 
-# Command to run Streamlit
-CMD ["streamlit", "run", "frontend/app.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
+WORKDIR /app
+RUN npm install -g serve
+
+COPY --from=build /app/dist ./dist
+
+EXPOSE 5173
+
+CMD ["serve", "-s", "dist", "-l", "5173"]

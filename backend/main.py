@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from backend.db import engine, Base
 import backend.models as models
 from backend.routers import admin, invoices, actions, audit_log, backtest
@@ -7,6 +8,14 @@ from backend.routers import admin, invoices, actions, audit_log, backtest
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="VasoolAI API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(admin.router)
 app.include_router(invoices.router)
