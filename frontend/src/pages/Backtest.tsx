@@ -102,7 +102,7 @@ export const BacktestPage: React.FC = () => {
         </div>
       ) : backtest ? (
         <div className="space-y-6">
-          {/* 2. Metric Compare Cards: Exact PRD §4 fields */}
+          {/* 2. Metric Compare Cards: Exact PRD §4 fields (3-arm benchmark) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Metric 1: Recovery Days */}
             <div className="bg-surface border border-border rounded-lg p-6 shadow-card space-y-4">
@@ -112,34 +112,49 @@ export const BacktestPage: React.FC = () => {
                   <p className="text-xs text-ink-soft">Average days recovered before default</p>
                 </div>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-surface-raised border border-border text-ink-soft">
-                  baseline vs agent
+                  3-arm benchmark
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 {/* Baseline Metric */}
-                <div className="p-4 rounded-md bg-surface-raised border border-border">
-                  <span className="text-[11px] uppercase tracking-wider text-ink-soft font-medium">
+                <div className="p-3.5 rounded-md bg-surface-raised border border-border">
+                  <span className="text-[11px] uppercase tracking-wider text-ink-soft font-medium block">
                     Naive Baseline
                   </span>
-                  <div className="font-mono text-2xl font-semibold text-ink mt-1">
+                  <div className="font-mono text-xl font-semibold text-ink mt-1">
                     {backtest.baseline_metric_recovery_days.toFixed(1)}d
                   </div>
-                  <div className="text-[11px] text-ink-faint mt-1">
+                  <div className="text-[11px] text-ink-faint mt-1 leading-snug">
                     Contact delayed to day 45
                   </div>
                 </div>
 
+                {/* Ablation Metric */}
+                <div className="p-3.5 rounded-md bg-surface-raised border border-border">
+                  <span className="text-[11px] uppercase tracking-wider text-ink-soft font-medium block">
+                    Ablation (Day 1 Flat)
+                  </span>
+                  <div className="font-mono text-xl font-semibold text-ink mt-1">
+                    +{backtest.ablation_metric_recovery_days !== undefined ? backtest.ablation_metric_recovery_days.toFixed(1) : '—'}d
+                  </div>
+                  <div className="text-[11px] text-ink-soft mt-1 leading-snug font-medium">
+                    {backtest.ablation_metric_recovery_days !== undefined
+                      ? `+${(backtest.ablation_metric_recovery_days - backtest.baseline_metric_recovery_days).toFixed(1)}d vs baseline`
+                      : 'No-ML flat contact'}
+                  </div>
+                </div>
+
                 {/* Agent Metric */}
-                <div className="p-4 rounded-md bg-low-bg border border-low/20">
-                  <span className="text-[11px] uppercase tracking-wider text-low font-medium">
+                <div className="p-3.5 rounded-md bg-low-bg border border-low/20">
+                  <span className="text-[11px] uppercase tracking-wider text-low font-medium block">
                     VasoolAI Agent
                   </span>
-                  <div className="font-mono text-2xl font-semibold text-low mt-1">
+                  <div className="font-mono text-xl font-semibold text-low mt-1">
                     +{backtest.agent_metric_recovery_days.toFixed(1)}d
                   </div>
-                  <div className="text-[11px] text-low/80 mt-1 font-medium">
-                    {(backtest.agent_metric_recovery_days - backtest.baseline_metric_recovery_days).toFixed(1)}d advance lift
+                  <div className="text-[11px] text-low/80 mt-1 leading-snug font-medium">
+                    +{(backtest.agent_metric_recovery_days - backtest.baseline_metric_recovery_days).toFixed(1)}d vs baseline
                   </div>
                 </div>
               </div>
@@ -153,38 +168,68 @@ export const BacktestPage: React.FC = () => {
                   <p className="text-xs text-ink-soft">Share of late invoices settled within target window</p>
                 </div>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-surface-raised border border-border text-ink-soft">
-                  target window
+                  3-arm benchmark
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 {/* Baseline Metric */}
-                <div className="p-4 rounded-md bg-surface-raised border border-border">
-                  <span className="text-[11px] uppercase tracking-wider text-ink-soft font-medium">
+                <div className="p-3.5 rounded-md bg-surface-raised border border-border">
+                  <span className="text-[11px] uppercase tracking-wider text-ink-soft font-medium block">
                     Naive Baseline
                   </span>
-                  <div className="font-mono text-2xl font-semibold text-ink mt-1">
+                  <div className="font-mono text-xl font-semibold text-ink mt-1">
                     {(backtest.baseline_metric_recovery_rate * 100).toFixed(1)}%
                   </div>
-                  <div className="text-[11px] text-ink-faint mt-1">
+                  <div className="text-[11px] text-ink-faint mt-1 leading-snug">
                     Single generic reminder
                   </div>
                 </div>
 
+                {/* Ablation Metric */}
+                <div className="p-3.5 rounded-md bg-surface-raised border border-border">
+                  <span className="text-[11px] uppercase tracking-wider text-ink-soft font-medium block">
+                    Ablation (Day 1 Flat)
+                  </span>
+                  <div className="font-mono text-xl font-semibold text-ink mt-1">
+                    {backtest.ablation_metric_recovery_rate !== undefined
+                      ? `${(backtest.ablation_metric_recovery_rate * 100).toFixed(1)}%`
+                      : '—'}
+                  </div>
+                  <div className="text-[11px] text-ink-soft mt-1 leading-snug font-medium">
+                    {backtest.ablation_metric_recovery_rate !== undefined
+                      ? `+${((backtest.ablation_metric_recovery_rate - backtest.baseline_metric_recovery_rate) * 100).toFixed(1)}% vs baseline`
+                      : 'Unguided day 1 nudge'}
+                  </div>
+                </div>
+
                 {/* Agent Metric */}
-                <div className="p-4 rounded-md bg-low-bg border border-low/20">
-                  <span className="text-[11px] uppercase tracking-wider text-low font-medium">
+                <div className="p-3.5 rounded-md bg-low-bg border border-low/20">
+                  <span className="text-[11px] uppercase tracking-wider text-low font-medium block">
                     VasoolAI Agent
                   </span>
-                  <div className="font-mono text-2xl font-semibold text-low mt-1">
+                  <div className="font-mono text-xl font-semibold text-low mt-1">
                     {(backtest.agent_metric_recovery_rate * 100).toFixed(1)}%
                   </div>
-                  <div className="text-[11px] text-low/80 mt-1 font-medium">
-                    +{((backtest.agent_metric_recovery_rate - backtest.baseline_metric_recovery_rate) * 100).toFixed(1)}% recovery lift
+                  <div className="text-[11px] text-low/80 mt-1 leading-snug font-medium">
+                    +{((backtest.agent_metric_recovery_rate - backtest.baseline_metric_recovery_rate) * 100).toFixed(1)}% vs baseline
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Interpretation Callout */}
+          <div className="bg-surface border border-border rounded-lg p-5 shadow-card text-xs text-ink-soft leading-relaxed space-y-1.5">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-ink">
+              Benchmark Interpretation &amp; Ablation Analysis
+            </h4>
+            <p>
+              The <strong className="text-ink">VasoolAI Agent</strong> and the <strong className="text-ink">Day-1 Flat Ablation</strong> perform near-identically on advance-notice (~{backtest.agent_metric_recovery_days.toFixed(1)}d vs ~{backtest.ablation_metric_recovery_days !== undefined ? backtest.ablation_metric_recovery_days.toFixed(1) : '—'}d) and recovery rate because these metrics are primarily driven by early contact timing.
+            </p>
+            <p>
+              Per MSMED Act escalation rules, early reminder tiers (<code className="px-1 py-0.5 bg-surface-raised border border-border rounded font-mono text-[11px] text-ink">nudge</code>) fire on fixed day-counts, while the XGBoost risk model acts as a protective gate for severe escalations (<code className="px-1 py-0.5 bg-surface-raised border border-border rounded font-mono text-[11px] text-ink">statutory_notice</code> at 31+ days). This benchmark isolates the high return of early intervention while avoiding indiscriminate legal escalation.
+            </p>
           </div>
 
           {/* 3. Run Details Row */}
