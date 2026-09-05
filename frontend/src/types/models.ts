@@ -29,6 +29,8 @@ export interface Action {
   escalation_tier: EscalationTier;
   channel: Channel;
   drafted_message: string;
+  computed_interest_amount?: number | null;
+  payment_link_url?: string | null;
   requires_approval: boolean;
   approved: boolean;
   approved_by: string | null;

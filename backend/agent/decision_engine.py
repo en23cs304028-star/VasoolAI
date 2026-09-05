@@ -63,6 +63,14 @@ def plan_action_for_invoice(invoice_id: int, db: Session, today: datetime.date =
     
     drafted_message = draft_message(tier.name, facts)
     
+    # Guarantee payment link is intact in drafted message
+    import re
+    if payment_link_url:
+        if ("https://" in drafted_message or "http://" in drafted_message) and payment_link_url not in drafted_message:
+            drafted_message = re.sub(r'https?://\S*', payment_link_url, drafted_message)
+        if payment_link_url not in drafted_message:
+            drafted_message = f"{drafted_message.strip()}\n\nPayment Link: {payment_link_url}"
+
     # Default channel is Email (Mailtrap sandbox) as Twilio WhatsApp Sandbox requires manual joining
     selected_channel = Channel.email
     

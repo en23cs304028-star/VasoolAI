@@ -82,21 +82,27 @@ def draft_message(tier: str, facts: dict) -> str:
         payment_link=facts.get('payment_link', '')
     )
     
-    instruction = f"\nDraft the message for the tier '{tier}' using the facts above. Enclose your final draft strictly between [DRAFT] and [/DRAFT] tags."
+    instruction = f"\nDraft the message for the tier '{tier}' using the facts above. Output your draft directly between [DRAFT] and [/DRAFT] tags with no reasoning."
     
     for attempt in range(2):
         try:
             completion = client.chat.completions.create(
                 model=settings.NVIDIA_DRAFT_MODEL,
                 messages=[
-                    {"role": "system", "content": "You are an automated payment reminder drafting engine for Indian MSMEs. You must produce the final draft message inside [DRAFT] and [/DRAFT] tags. Output no extra conversational filler."},
+                    {"role": "system", "content": "You are an automated payment reminder drafting engine for Indian MSMEs. Do not include thinking or planning steps. Output ONLY the draft enclosed in [DRAFT] and [/DRAFT] tags."},
                     {"role": "user", "content": prompt + instruction}
                 ],
-                temperature=0.2,
-                max_tokens=1024,
+                temperature=0.1,
+                max_tokens=2048,
             )
             raw_content = completion.choices[0].message.content or ""
+            finish_reason = getattr(completion.choices[0], 'finish_reason', None)
+            
             clean_msg = extract_final_message(raw_content)
+            if finish_reason == "length" and "[/DRAFT]" not in raw_content:
+                print(f"NVIDIA draft attempt {attempt + 1} truncated by length; falling back or retrying")
+                clean_msg = ""
+                
             if clean_msg:
                 return clean_msg
         except Exception as e:

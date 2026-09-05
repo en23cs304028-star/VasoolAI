@@ -128,6 +128,8 @@ def get_invoice(id: int, db: Session = Depends(get_db)):
                 "escalation_tier": a.escalation_tier.name if hasattr(a.escalation_tier, 'name') else str(a.escalation_tier),
                 "channel": a.channel.name if hasattr(a.channel, 'name') else str(a.channel),
                 "drafted_message": a.drafted_message,
+                "computed_interest_amount": float(a.computed_interest_amount) if a.computed_interest_amount else None,
+                "payment_link_url": a.payment_link_url,
                 "requires_approval": a.requires_approval,
                 "approved": a.approved,
                 "approved_by": a.approved_by,

@@ -4,7 +4,7 @@ import { TierPill } from '../TierPill';
 import { ShapBars } from './ShapBars';
 import { approveAction, sendAction, recordPromise } from '../../api/actions';
 import { planAction, scoreInvoice } from '../../api/invoices';
-import { CheckCircle2, AlertCircle, Send, ShieldAlert, Calendar } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Send, ShieldAlert, Calendar, ExternalLink, Copy, Check } from 'lucide-react';
 
 interface DetailsTabProps {
   invoice: InvoiceDetail;
@@ -17,6 +17,7 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({ invoice, onRefresh }) =>
   const [isPlanning, setIsPlanning] = useState(false);
   const [isScoring, setIsScoring] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // Promise to pay states
   const [showPromiseInput, setShowPromiseInput] = useState(false);
@@ -221,6 +222,50 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({ invoice, onRefresh }) =>
             <div className="p-3 bg-surface-raised rounded-md border border-border text-xs leading-relaxed text-ink font-sans whitespace-pre-wrap selection:bg-primary-soft">
               {latestAction.drafted_message}
             </div>
+
+            {/* Dedicated Razorpay Payment Link Banner */}
+            {(latestAction.payment_link_url || latestAction.drafted_message.match(/https?:\/\/[^\s]+/)?.[0]) && (() => {
+              const paymentUrl = latestAction.payment_link_url || latestAction.drafted_message.match(/https?:\/\/[^\s]+/)?.[0]!;
+              return (
+                <div className="p-3 bg-surface-raised rounded-md border border-primary/25 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-sm">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-primary shrink-0">
+                      Razorpay Link:
+                    </span>
+                    <a
+                      href={paymentUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-primary font-mono truncate hover:underline"
+                      title={paymentUrl}
+                    >
+                      {paymentUrl}
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(paymentUrl);
+                        setCopiedLink(true);
+                        setTimeout(() => setCopiedLink(false), 2000);
+                      }}
+                      className="px-2.5 py-1 text-[11px] font-medium text-ink-soft hover:text-ink bg-surface border border-border rounded flex items-center gap-1 transition-colors"
+                    >
+                      {copiedLink ? <Check className="w-3 h-3 text-low" /> : <Copy className="w-3 h-3" />}
+                      {copiedLink ? 'Copied' : 'Copy'}
+                    </button>
+                    <a
+                      href={paymentUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-2.5 py-1 text-[11px] font-medium bg-primary text-white hover:bg-primary-hover rounded flex items-center gap-1 transition-colors shadow-sm"
+                    >
+                      Pay Now <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* In-product pipeline caption */}
             <p className="text-[11px] text-ink-faint italic">
